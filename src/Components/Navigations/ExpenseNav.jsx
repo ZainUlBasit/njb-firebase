@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { NavComp } from "./NavComp";
 import AdminNavButton from "./AdminNavButton";
-import LeaderboardIcon from "@mui/icons-material/Leaderboard";
 import NoteAddIcon from "@mui/icons-material/NoteAdd";
 import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
 import AddExpense from "../Modals/AddExpense";
+import HouseIcon from '@mui/icons-material/House';
+import StoreIcon from '@mui/icons-material/Store';
+import TodayIcon from '@mui/icons-material/Today';
 
 const ExpenseNav = () => {
   const [AddExpenseModal, setAddExpenseModal] = useState(false);
@@ -24,21 +26,21 @@ const ExpenseNav = () => {
         <AdminNavButton
           title={"Expense Info"}
           type={"link"}
-          BIcon={LeaderboardIcon}
+          BIcon={StoreIcon}
           width={"185px"}
           link={"/reports"}
         />
         <AdminNavButton
           title={"Home Expense Info"}
           type={"link"}
-          BIcon={LeaderboardIcon}
+          BIcon={HouseIcon}
           width={"185px"}
           link={"/reports_home"}
         />
         <AdminNavButton
           title={"Daily Info"}
           type={"link"}
-          BIcon={AccountBalanceWalletIcon}
+          BIcon={TodayIcon}
           width={"185px"}
           link={"/reports_daily"}
         />

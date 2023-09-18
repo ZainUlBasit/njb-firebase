@@ -182,6 +182,7 @@ function AccountReport({ Data }) {
         <View
           style={{
             display: "flex",
+            flexDirection:"row",
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%",
@@ -204,7 +205,7 @@ function AccountReport({ Data }) {
               fontSize: "10px",
             }}
           >
-            Contact:0311-0312452
+            Email: zainulbasit486@gmail.com
           </Text>
         </View>
         <View
@@ -337,6 +338,7 @@ function AccountReport({ Data }) {
                 flexDirection: "row",
                 borderBottom: "2px solid #032248",
               }}
+              fixed
             >
               {/* Description */}
               <Text style={styles.header1}>Customer</Text>

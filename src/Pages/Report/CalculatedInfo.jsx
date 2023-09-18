@@ -8,13 +8,13 @@ const CalculatedInfo = ({ sale, purchase, qty }) => {
           Total Sale: {sale}/-
         </div>
         <div className="text-[#032248] font-bold text-[1.3rem]">
-          Total Purchases: {purchase}/-
+          Total Purchases: {Number(purchase).toFixed(2)}/-
         </div>
         <div className="text-[#032248] font-bold text-[1.3rem]">
-          Total QTY: {qty}/-
+          Total QTY: {Number(qty).toFixed(2)}/-
         </div>
         <div className="text-[#032248] font-bold text-[1.3rem]">
-          Total Profit: {sale - purchase}/-
+          Total Profit: {Number(sale - purchase).toFixed(2)}/-
         </div>
       </div>
     </div>

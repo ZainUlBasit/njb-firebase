@@ -13,22 +13,23 @@ const SteelDaily = ({ data }) => {
     setSteelData(
       data.filter((dt) => dt.desc === "Steel" || dt.desc === "steel")
     );
+    console.log(SteelData);
   };
   useEffect(() => {
     SetData();
   }, [data]);
 
   const TotalAmount = useMemo(() => {
-    return SteelData.reduce((total, item) => item.amount + total, 0);
+    return SteelData.reduce((total, item) => Number(item.amount) + total, 0);
   }, [SteelData]);
 
   const TotalQty = useMemo(() => {
-    return SteelData.reduce((total, item) => item.qty + total, 0);
+    return SteelData.reduce((total, item) => Number(item.qty) + total, 0);
   }, [SteelData]);
 
   const TotalPurchase = useMemo(() => {
     return SteelData.reduce(
-      (total, item) => item.purchase * Number(item.qty) + total,
+      (total, item) => Number(item.purchase) * Number(item.qty) + total,
       0
     );
   }, [SteelData]);

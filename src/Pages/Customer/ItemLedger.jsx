@@ -12,6 +12,9 @@ import { useMemo } from "react";
 import CalculationInfo from "./CalculationInfo";
 import CustomerTransactionDataServices from "../../Services/customerTransaction.services";
 import CustomerReturnDataServices from "../../Services/customerReturn.services";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import LedgerReport from "../LedgerReport";
+import DailyButton from "../../Components/Buttons/DailyButton";
 
 const ItemLedger = ({ id, fromdate, todate }) => {
   const [Data, setData] = useState([]);
@@ -72,12 +75,21 @@ const ItemLedger = ({ id, fromdate, todate }) => {
     dispatch(fetchCustomers());
     GetAccounts();
   }, [id, fromdate, todate]);
+
   return (
     <>
       {Loading ? (
         <DataLoader />
       ) : (
         <>
+          <div className="w-full flex justify-center items-center my-[10px]">
+            <PDFDownloadLink
+              document={<LedgerReport Data={Data} />}
+              fileName={`Customer Item Ledger Report`}
+            >
+              <DailyButton title={"Item Ledger Report"} onClick={() => {}} />
+            </PDFDownloadLink>
+          </div>
           <TableComp
             title="Item Ledger"
             rows={Data}

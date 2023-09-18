@@ -10,6 +10,8 @@ import { CustomerDetailColumns } from "../../assets/Columns/CustomerDetailColumn
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import Testing from "../Testing";
 import ChargesDataServices from "../../Services/charges.services";
+import customerServices from "../../Services/customer.services";
+import customerTransactionServices from "../../Services/customerTransaction.services";
 
 const ShowInvoiceDetail = ({ data, invoiceno }) => {
   const [CurrentInvoiceD, setCurrentInvoiceD] = useState([]);
@@ -22,8 +24,11 @@ const ShowInvoiceDetail = ({ data, invoiceno }) => {
   const [CurPaid, setCurPaid] = useState("");
   const [CurDiscount, setCurDiscount] = useState("");
   const [CurAdvance, setCurAdvance] = useState("");
+  const [CurExpense, setCurExpense] = useState("");
   const [CurLoading, setCurLoading] = useState("");
   const [CurDelivery, setCurDelivery] = useState("");
+  const [CurDriverName, setCurDriverName] = useState("");
+  const [CurDriverContact, setCurDriverContact] = useState("");
 
   const getInvoiceData = () => {
     setCurrentInvoiceD([]);
@@ -65,10 +70,14 @@ const ShowInvoiceDetail = ({ data, invoiceno }) => {
       setCurAdvance(curData.advance);
       setCurLoading(curData.cloading);
       setCurDelivery(curData.cdelivery);
+      setCurExpense(curData.cexpense);
+      setCurDriverName(curData.drivername);
+      setCurDriverContact(curData.drivercontact);
       Customers.data.filter((cust) => {
         if (cust._id === CurrentID) {
           setCurrentName(cust.name);
           setCurrentAddress(cust.address);
+          setCurrentContact(cust.contact);
           setCurrentContact(cust.contact);
         }
       });
@@ -78,11 +87,37 @@ const ShowInvoiceDetail = ({ data, invoiceno }) => {
 
   const onDelete = async () => {
     try {
-      // const response = await DeleteInvoice(invoiceno);
-      // if (response.status === 200) {
-      // invoiceno = "";
-      // alert("Invoice Successfully Deleted...");
-      // } else if (response.status === 400) alert("Unable to delete invoice");
+      const total =
+        (Number(CurrentAccounts[0].total) +
+          Number(CurrentAccounts[0].cdelivery) +
+          Number(CurrentAccounts[0].cloading) +
+          Number(CurrentAccounts[0].cexpense)) *
+        -1;
+      const paid = Number(CurrentAccounts[0].cpaid) * -1;
+      const remaining =
+        (Number(CurrentAccounts[0].total) +
+          Number(CurrentAccounts[0].cdelivery) +
+          Number(CurrentAccounts[0].cloading) +
+          Number(CurrentAccounts[0].cexpense) -
+          Number(CurrentAccounts[0].cpaid) -
+          Number(CurrentAccounts[0].cdiscount)) *
+        -1;
+      const advance = Number(CurrentAccounts[0].advance) * -1;
+      const discount = Number(CurrentAccounts[0].cdiscount) * -1;
+      await customerServices.updateAccountsDelete(
+        CurrentID,
+        total,
+        paid,
+        remaining,
+        advance,
+        discount
+      );
+      CurrentInvoiceD.map(async (ci) => {
+        await customerTransactionServices.deleteTransaction(ci._id);
+      });
+
+      await customerServices.deleteSaleInfo(CurrentInvoiceD[0].bill);
+      alert("Item Deleted Successfully...");
     } catch (err) {
       console.log("Error: ", err.message);
     }
@@ -110,9 +145,13 @@ const ShowInvoiceDetail = ({ data, invoiceno }) => {
             <Testing
               Data={CurrentInvoiceD}
               cTotal={CurTotal}
+              cAdvance={CurAdvance}
               cLoading={CurLoading}
               cDelivery={CurDelivery}
               cDiscount={CurDiscount}
+              cExpense={CurExpense}
+              DriverName={CurDriverName}
+              DriverContact={CurDriverContact}
               cGrand={
                 Number(CurTotal) -
                 Number(CurDiscount) +

@@ -18,11 +18,11 @@ const CementDaily = ({ data }) => {
   }, [data]);
 
   const TotalAmount = useMemo(() => {
-    return CementData.reduce((total, item) => item.amount + total, 0);
+    return CementData.reduce((total, item) => Number(item.amount) + total, 0);
   }, [CementData]);
 
   const TotalQty = useMemo(() => {
-    return CementData.reduce((total, item) => item.qty + total, 0);
+    return CementData.reduce((total, item) => Number(item.qty) + total, 0);
   }, [CementData]);
 
   const TotalPurchase = useMemo(() => {

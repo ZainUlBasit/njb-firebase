@@ -26,6 +26,7 @@ import ChargesDataServices from "../../Services/charges.services";
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import AddingLoader from "../../Components/Loader/AddingLoader";
+import customerServices from "../../Services/customer.services";
 
 const AddNewBill = () => {
   const [CurrentCustomer, setCurrentCustomer] = useState("");
@@ -47,6 +48,8 @@ const AddNewBill = () => {
   const [CurrentContact, setCurrentContact] = useState("");
   const [ProcessLoading, setProcessLoading] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const [DriverName, setDriverName] = useState("");
+  const [DriverContact, setDriverContact] = useState("");
   const handleCheckboxChange = (event) => {
     setIsChecked(event.target.checked);
   };
@@ -90,21 +93,21 @@ const AddNewBill = () => {
         });
         // To update account of customer
         const GrandTotal =
-          Total +
+          Number(Total) +
           Number(LoadingCharges) +
           Number(DeliveryCharges) +
           Number(TotalExpense);
         const RemainingTotal = GrandTotal - Paid;
         const TotalDiscount = Discount;
-        const AdvanceTotal = Advance;
+        const AdvanceTotal = Number(Advance) * -1;
         const PaidTotal = Paid;
         await CustomerDataServices.updateCustomerTotal(
           CurrentCustomer,
-          GrandTotal,
-          RemainingTotal,
-          TotalDiscount,
-          AdvanceTotal,
-          PaidTotal
+          Number(GrandTotal),
+          Number(RemainingTotal),
+          Number(TotalDiscount),
+          Number(AdvanceTotal),
+          Number(PaidTotal)
         );
         await ChargesDataServices.addCharges({
           id: CurrentBillNo,
@@ -115,8 +118,17 @@ const AddNewBill = () => {
           cexpense: TotalExpense,
           total: Total,
           advance: Advance,
+          drivername: DriverName,
+          drivercontact: DriverContact,
           date: timestamp,
         });
+        await customerServices.addSaleInfo(
+          CurrentName,
+          CurrentBillNo,
+          GrandTotal,
+          Paid,
+          timestamp
+        );
         if (Number(Advance) !== 0)
           await CustomerDataServices.addAdvanceLedger({
             customerid: CurrentCustomer,
@@ -138,7 +150,10 @@ const AddNewBill = () => {
 
   const getTotal = () => {
     setTotal(
-      BillDetail.map((item) => item.amount).reduce((sum, i) => sum + i, 0)
+      BillDetail.map((item) => Number(item.amount)).reduce(
+        (sum, i) => sum + i,
+        0
+      )
     );
   };
 
@@ -175,85 +190,6 @@ const AddNewBill = () => {
     };
     if (CurrentCustomer != "") SetCurrentAdvance();
   }, [CurrentCustomer]);
-
-  // ***************************
-  // Print Invoice Method
-  // ***************************
-  const setData = () => {
-    let taxRate;
-    if (Discount === 0) taxRate = -((1 / Total) * 100);
-    else taxRate = -((Discount / Total) * 100);
-    return BillDetail.map((item) => {
-      return {
-        quantity: item.qty,
-        description: item.name,
-        "tax-rate": taxRate,
-        price: item.price,
-      };
-    });
-  };
-  const GenerateBill = async (CurrBillNo) => {
-    const formatedData = setData();
-    let cName, cAddress, cId, cContact;
-    Customers.map((cus) => {
-      if (cus._id === CurrentCustomer) {
-        cName = cus.name;
-        cAddress = cus.address;
-        cId = cus._id;
-        cContact = cus.contact;
-      }
-    });
-    // ==================================
-    // Generating Invoice
-    // ==================================
-    let data = {
-      customize: {},
-      images: {
-        logo: "https://firebasestorage.googleapis.com/v0/b/wfw-expert-system-cff9e.appspot.com/o/images%2Fmain_logo.png?alt=media&token=411846c3-3d86-4f2e-9055-53f9811ab865",
-      },
-      // Company data
-      sender: {
-        company: "Niamat Jan & Brothers",
-        zip: "Steel and Cement Dealer",
-        city: "",
-        country: "Charsadda, KPK",
-      },
-      // Your recipient
-      client: {
-        company: cName,
-        address: cContact,
-        zip: cAddress,
-        city: "Pakistan",
-      },
-      information: {
-        // Invoice number
-        number: CurrBillNo,
-        // Invoice data
-        date: moment(CurDate).format("DD/MM/YYYY"),
-        // Invoice due date
-        "due-date": "------",
-      },
-      // The products you would like to see on your invoice
-      // Total values are being calculated automatically
-      products: formatedData,
-      // The message you would like to display on the bottom of your invoice
-      "bottom-notice": `Developed By: XEE Tech, Email: zainulbasit486@gmail.com`,
-      // Settings to customize your invoice
-      settings: {},
-      translate: {
-        subtotal: "Current Total", // Defaults to 'Subtotal'
-        products: "Items", // Defaults to 'Products'
-        total: "Grand Total", // Defaults to 'Total'
-        vat: "Discount", // Defaults to 'vat'
-      },
-    };
-    // ==========================================
-    // Call for generating Invoice
-    // ==========================================
-    easyinvoice.createInvoice(data, function (result) {
-      easyinvoice.download("invoice.pdf");
-    });
-  };
 
   return (
     <>
@@ -321,17 +257,19 @@ const AddNewBill = () => {
                         document={
                           <Testing
                             Data={BillDetail}
-                            cTotal={Total}
+                            cTotal={Total.toFixed(2)}
                             cLoading={LoadingCharges}
                             cDelivery={DeliveryCharges}
                             cDiscount={Discount}
                             cAdvance={Advance}
-                            cGrand={
+                            DriverName={DriverName}
+                            DriverContact={DriverContact}
+                            cGrand={(
                               Number(Total) -
                               Number(Discount) +
                               Number(LoadingCharges) +
                               Number(DeliveryCharges)
-                            }
+                            ).toFixed(2)}
                             cExpense={TotalExpense}
                             cArears={CurrentRemaining}
                             cPaid={Paid}
@@ -355,9 +293,32 @@ const AddNewBill = () => {
                     </div>
                     {/* Right */}
                     <div className="flex flex-col p-[10px] pt-[15px]">
+                      {/* Driver Name */}
+                      <div className="flex w-[220px] text-[1.2rem] font-[raleway] font-bold my-[5px] select-none justify-end">
+                        <input
+                          type="text"
+                          name="driver-name"
+                          id="driver-name"
+                          placeholder="Driver Name"
+                          value={DriverName}
+                          onChange={(e) => setDriverName(e.target.value)}
+                          className="text-[#032248] font-[raleway] font-bold text-[1rem] w-[180px] py-[5px] pl-[5px]"
+                        />
+                      </div>
+                      {/* Driver Contact */}
+                      <div className="flex w-[220px] text-[1.2rem] font-[raleway] font-bold my-[5px] select-none justify-end">
+                        <input
+                          type="number"
+                          name="driver-contact"
+                          id="driver-contact"
+                          placeholder="Driver Contact"
+                          value={DriverContact}
+                          onChange={(e) => setDriverContact(e.target.value)}
+                          className="text-[#032248] font-[raleway] font-bold text-[1rem] w-[180px] py-[5px] pl-[5px]"
+                        />
+                      </div>
                       {/* CurDate */}
                       <div className="flex w-[220px] text-[1.2rem] font-[raleway] font-bold my-[5px] select-none justify-end">
-                        {/* <div className="w-[118px] pr-[5px] text-right">Total:</div> */}
                         <input
                           type="date"
                           name="date"
@@ -373,7 +334,7 @@ const AddNewBill = () => {
                           Total:
                         </div>
                         <div className="w-[100px] bg-white text-[#032248]">
-                          {Total}
+                          {Total.toFixed(2)}
                         </div>
                       </div>
                       {/* Loading Charges */}
@@ -505,13 +466,15 @@ const AddNewBill = () => {
                             Balance:
                           </div>
                           <div className="w-[100px] bg-white text-[#032248]">
-                            {CurrentRemaining +
+                            {(
+                              CurrentRemaining +
                               Number(Total) -
                               Number(Discount) +
                               Number(LoadingCharges) +
                               Number(TotalExpense) +
                               Number(DeliveryCharges) -
-                              Number(Paid)}
+                              Number(Paid)
+                            ).toFixed(2)}
                           </div>
                         </div>
                       )}

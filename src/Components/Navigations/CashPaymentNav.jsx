@@ -3,9 +3,12 @@ import { NavComp } from "./NavComp";
 import AdminNavButton from "./AdminNavButton";
 import BusinessIcon from "@mui/icons-material/Business";
 import PersonIcon from "@mui/icons-material/Person";
-import AddCardIcon from "@mui/icons-material/AddCard";
 import AddCustomerAdvance from "../Modals/AddCustomerAdvance";
 import AddArears from "../Modals/AddArears";
+import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
+import PaymentsIcon from '@mui/icons-material/Payments';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
+
 const CashPaymentNav = () => {
   const [open, setOpen] = useState(false);
   const [ArearsOpen, setArearsOpen] = useState(false);
@@ -32,21 +35,21 @@ const CashPaymentNav = () => {
         <AdminNavButton
           title={"Add Payment"}
           type={"link"}
-          BIcon={PersonIcon}
+          BIcon={PointOfSaleIcon}
           width={"180px"}
           link={"/add-payment"}
         />
         <AdminNavButton
           title={"Add Advance"}
           type={"modal"}
-          BIcon={AddCardIcon}
+          BIcon={PaymentsIcon}
           width={"180px"}
           setOpen={setOpen}
         />
         <AdminNavButton
           title={"Add Arears"}
           type={"modal"}
-          BIcon={AddCardIcon}
+          BIcon={CompareArrowsIcon}
           width={"180px"}
           setOpen={setArearsOpen}
         />

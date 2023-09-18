@@ -38,6 +38,8 @@ import { auth } from "./config/firebase";
 import LoginProtectedRoute from "./Components/ProtectedRoutes/LoginProtectedRoute";
 import AdvanceLedger from "./Pages/Customer/AdvanceLedger";
 import ArearsLedger from "./Pages/Customer/ArearsLedger";
+import chargesServices from "./Services/charges.services";
+import customerServices from "./Services/customer.services";
 
 const App = () => {
   // Redux Toolkit
@@ -62,7 +64,6 @@ const App = () => {
       dispatch(SetAuthNotFound([]));
     }
   };
-
   // Use Effects
   useEffect(() => {
     CallAutoLogin();

@@ -2,6 +2,7 @@ import styled from "styled-components";
 import SelectComp from "../Select/SelectComp";
 import DatePickerComp from "../DatePicker/DatePicker";
 import LedgerButton from "../Buttons/LedgerButton";
+import Select from "react-select";
 
 export const ReportStyled = styled.div`
   display: flex;
@@ -95,11 +96,15 @@ const LedgerComp = (props) => {
         <div className="TitleCont select-none">{props.title}</div>
         <div className="Line"></div>
         <InputWrapperStyling>
-          <SelectComp
-            DefOption={props.DefOption}
-            Options={props.Options}
-            setSelect={props.setSelectCompany}
-            SelectCompany={props.SelectCompany}
+          <Select
+            options={props.Options.map((opt) => {
+              return {
+                label: opt.name,
+                value: opt._id,
+              };
+            })}
+            className="w-[95%] my-[20px] pb-[0px] font-bold"
+            onChange={(opt) => props.setSelectCompany({ id: opt.value.toString(), found: true })}
           />
         </InputWrapperStyling>
         <div className="pr-[10px] pl-[10px] font-[raleway] flex w-[100%] rounded-[10px] justify-between mt-[12px] mb-[28px] sm:flex-wrap md:flex-nowrap">

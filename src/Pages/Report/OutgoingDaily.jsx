@@ -31,7 +31,7 @@ const OutgoingDaily = ({ data }) => {
       />
       <div className="w-full flex flex-col justify-center items-center my-[20px]">
         <div className="text-[1.5rem] font-[raleway] font-bold text-[#032248]">
-          Total Outgoing Cash: {OutgoingTotal}
+          Total Outgoing Cash: {Number(OutgoingTotal).toFixed(2)}
         </div>
       </div>
     </>

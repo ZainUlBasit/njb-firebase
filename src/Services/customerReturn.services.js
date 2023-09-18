@@ -11,13 +11,19 @@ import {
   doc,
 } from "firebase/firestore";
 
-const customerReturnCollectionRef = collection(
-  db,
-  "customer-returns"
-);
+const customerReturnCollectionRef = collection(db, "customer-returns");
+const returnLedgerCollectionRef = collection(db, "customer-returns-ledger");
 class CustomerReturnDataServices {
   addReturn = (newReturn) => {
     return addDoc(customerReturnCollectionRef, newReturn);
+  };
+
+  addReturnLedger = (newReturnLedger) => {
+    return addDoc(returnLedgerCollectionRef, newReturnLedger);
+  };
+
+  getAllReturnsLedger = () => {
+    return getDocs(returnLedgerCollectionRef);
   };
 
   getAllReturns = () => {

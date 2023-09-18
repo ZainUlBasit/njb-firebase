@@ -18,6 +18,11 @@ import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import CustomerReturnDataServices from "../../Services/customerReturn.services";
 import BillNoDataServices from "../../Services/billno.services";
+import AddingLoader from "../../Components/Loader/AddingLoader";
+import { PDFDownloadLink } from "@react-pdf/renderer";
+import ReturnReport from "../ReturnReport";
+import customerReturnServices from "../../Services/customerReturn.services";
+import customerServices from "../../Services/customer.services";
 
 const ItemReturn = () => {
   const [CurrentCustomer, setCurrentCustomer] = useState("");
@@ -27,21 +32,31 @@ const ItemReturn = () => {
   const [Open, setOpen] = useState(false);
   const [BillDetail, setBillDetail] = useState([]);
   const [CurrentBillNo, setCurrentBillNo] = useState("");
+  const [DriverName, setDriverName] = useState("");
+  const [DriverContact, setDriverContact] = useState("");
+  const [Expense, setExpense] = useState("");
+  const [CurrentRemaining, setCurrentRemaining] = useState(0);
+  const [Paid, setPaid] = useState("");
+  const [CurrentName, setCurrentName] = useState("");
+  const [CurrentAddress, setCurrentAddress] = useState("");
+  const [CurrentContact, setCurrentContact] = useState("");
 
   let Items = useSelector((state) => state.ItemReducer.data);
   const Customers = useSelector((state) => state.CustomerReducer.data);
   const dispatch = useDispatch();
+  const [ProccessLoading, setProccessLoading] = useState(false);
 
   const onSubmit = async (e) => {
+    setProccessLoading(true);
     e.preventDefault();
     if (CurDate === undefined) {
       alert("Select CurDate Please");
     } else {
       // Add Data to bill item
+      const timestamp = firebase.firestore.Timestamp.fromDate(
+        new Date(CurDate)
+      );
       const newBillDetail = BillDetail.map((bd) => {
-        const timestamp = firebase.firestore.Timestamp.fromDate(
-          new Date(CurDate)
-        );
         return {
           ...bd,
           customerid: CurrentCustomer,
@@ -60,6 +75,19 @@ const ItemReturn = () => {
             desc: desc,
           });
         });
+        await customerReturnServices.addReturnLedger({
+          date: timestamp,
+          customer: CurrentName,
+          bill: CurrentBillNo,
+          total: Total,
+          discount: Discount,
+          expense: Expense,
+          paid: Paid,
+        });
+        await customerServices.updateAccountsReturn(
+          CurrentCustomer,
+          Number(Total) - Number(Expense) - Number(Paid) - Number(Discount)
+        );
         await BillNoDataServices.updateBillNo();
         alert("Return Successfully added...!");
         setBillDetail([]);
@@ -68,11 +96,15 @@ const ItemReturn = () => {
         alert("Error Occured...");
       }
     }
+    setProccessLoading(false);
   };
 
   const getTotal = () => {
     setTotal(
-      BillDetail.map((item) => item.amount).reduce((sum, i) => sum + i, 0)
+      BillDetail.map((item) => Number(item.amount)).reduce(
+        (sum, i) => sum + i,
+        0
+      )
     );
   };
 
@@ -92,6 +124,20 @@ const ItemReturn = () => {
     };
     SetBillNoFunc();
   }, [BillDetail]);
+
+  useEffect(() => {
+    const SetCurrentAdvance = () => {
+      Customers.filter((cust) => {
+        if (cust._id === CurrentCustomer) {
+          setCurrentRemaining(cust.remaining);
+          setCurrentName(cust.name);
+          setCurrentAddress(cust.address);
+          setCurrentContact(cust.contact);
+        }
+      });
+    };
+    if (CurrentCustomer != "") SetCurrentAdvance();
+  }, [CurrentCustomer]);
   return (
     <>
       <Navbar />
@@ -137,37 +183,106 @@ const ItemReturn = () => {
                 {/* Main Block */}
                 <div className="flex justify-between items-center">
                   {/* left */}
-                  <div className="flex justify-center items-center pl-[20px]">
-                    <button
-                      className="bg-white text-[#032248] px-[10px] py-[8px] font-bold font-[raleway] text-[1.2rem] border-[2px] border-white hover:rounded-[8px] hover:bg-[#032248] hover:text-white transition-all duration-700"
-                      onClick={onSubmit}
+                  <div className="flex flex-col justify-center items-center pl-[20px]">
+                    {ProccessLoading ? (
+                      <AddingLoader />
+                    ) : (
+                      <button
+                        className="bg-white text-[#032248] px-[10px] py-[8px] font-bold font-[raleway] text-[1.2rem] border-[2px] border-white hover:rounded-[8px] hover:bg-[#032248] hover:text-white transition-all duration-700"
+                        onClick={onSubmit}
+                      >
+                        Add Bill
+                      </button>
+                    )}
+
+                    <PDFDownloadLink
+                      document={
+                        <ReturnReport
+                          Data={BillDetail}
+                          cTotal={Total.toFixed(2)}
+                          cDiscount={Discount}
+                          DriverName={DriverName}
+                          DriverContact={DriverContact}
+                          cExpense={Expense}
+                          cArears={CurrentRemaining}
+                          cPaid={Paid}
+                          bBillNo={CurrentBillNo}
+                          bDate={CurDate}
+                          cName={CurrentName}
+                          cAddress={CurrentAddress}
+                          cContact={CurrentContact}
+                        />
+                      }
+                      fileName={`${CurrentBillNo}`}
                     >
-                      Add Bill
-                    </button>
+                      <button className="bg-white text-[#032248] px-[20px] mobbtn:px-[14px] py-[10px] font-bold font-[raleway] text-[1.2rem] border-[2px] border-white hover:rounded-[8px] hover:bg-[#032248] hover:text-white transition-all duration-700 select-none my-[5px]">
+                        Print
+                      </button>
+                    </PDFDownloadLink>
                   </div>
                   {/* Right */}
                   <div className="flex flex-col p-[10px] pt-[15px]">
                     {/* CurDate */}
-                    <div className="flex w-[200px] text-[1.2rem] font-[raleway] font-bold justify-end">
-                      {/* <div className="w-[118px] pr-[5px] text-right">Total:</div> */}
+                    <div className="flex w-[230px] text-[1.2rem] font-[raleway] font-bold justify-end py-[2px]">
                       <input
                         type="date"
                         name="date"
                         id="date"
                         value={CurDate}
                         onChange={(e) => setDate(e.target.value)}
-                        className="text-[#032248] font-[raleway] font-bold text-[1.2rem] w-[180px]"
+                        className="text-[#032248] font-[raleway] font-bold text-[1.2rem] pl-[2px] py-[5px] w-[230px]"
                       />
                     </div>
-                    {/* Current */}
-                    <div className="flex w-[200px] text-[1.2rem] font-[raleway] font-bold">
-                      <div className="w-[118px] pr-[5px] text-right">
-                        Total:
-                      </div>
-                      <div className="w-[80px]">{Total}/-</div>
+                    {/* Driver Name */}
+                    <div className="flex w-[230px] text-[1.2rem] font-[raleway] font-bold justify-end py-[2px]">
+                      <input
+                        type="text"
+                        name="driver-name"
+                        id="driver-name"
+                        placeholder="Driver Name"
+                        value={DriverName}
+                        onChange={(e) => setDriverName(e.target.value)}
+                        className="text-[#032248] font-[raleway] pl-[2px] py-[5px] text-[1.1rem] w-[230px]"
+                      />
+                    </div>
+                    {/* Driver Contact */}
+                    <div className="flex w-[230px] text-[1.2rem] font-[raleway] font-bold justify-end py-[2px]">
+                      <input
+                        type="number"
+                        name="driver-contact"
+                        id="driver-contact"
+                        placeholder="Driver Contact"
+                        value={DriverContact}
+                        onChange={(e) => setDriverContact(e.target.value)}
+                        className="text-[#032248] font-[raleway] pl-[2px] py-[5px] text-[1.1rem] w-[230px]"
+                      />
+                    </div>
+                    {/* Expense */}
+                    <div className="flex w-[230px] text-[1rem] font-[raleway] font-bold justify-end py-[2px]">
+                      <input
+                        type="number"
+                        name="expense"
+                        id="expense"
+                        placeholder="Expense"
+                        value={Expense}
+                        onChange={(e) => setExpense(e.target.value)}
+                        className="pl-[4px] py-[5px] text-[#032248] font-[raleway] font-bold text-[1.1rem] w-[100%]"
+                      />
+                    </div>
+                    {/* Cash Recieved By Customer */}
+                    <div className="flex w-[230px] text-[1.1rem] font-[raleway] font-bold justify-end py-[2px]">
+                      <input
+                        type="number"
+                        name="paid"
+                        id="paid"
+                        placeholder="Paid"
+                        value={Paid}
+                        onChange={(e) => setPaid(e.target.value)}
+                        className="pl-[4px] py-[5px] text-[#032248] font-[raleway] font-bold text-[1.1rem] w-[100%]"
+                      />
                     </div>
                     {/* Discount */}
-                    <div className="flex w-[200px] text-[1.2rem] font-[raleway] font-bold">
+                    <div className="flex w-[230px] text-[1.2rem] font-[raleway] font-bold pt-[2px]">
                       <div className="w-[118px] pr-[5px] text-right">
                         Discount:
                       </div>
@@ -177,15 +292,29 @@ const ItemReturn = () => {
                         id="discount"
                         value={Discount}
                         onChange={(e) => setDiscount(e.target.value)}
-                        className="text-[#032248] font-[raleway] font-bold text-[1.2rem] w-[80px]"
+                        className="text-[#032248] font-[raleway] font-bold text-[1.2rem] w-[112px]"
                       />
                     </div>
+                    {/* Current */}
+                    <div className="flex w-[230px] text-[1.2rem] font-[raleway] font-bold">
+                      <div className="w-[118px] pr-[5px] text-right">
+                        Total:
+                      </div>
+                      <div className="w-[112px]">{Total}/-</div>
+                    </div>
                     {/* Grand Total */}
-                    <div className="flex w-[200px] text-[1.2rem] font-[raleway] font-bold">
+                    <div className="flex w-[230px] text-[1.2rem] font-[raleway] font-bold">
                       <div className="w-[118px] pr-[5px] text-right">
                         Grand Total:
                       </div>
-                      <div className="w-[80px]">{Total - Discount}/-</div>
+                      <div className="w-[112px]">
+                        {Number(Expense) +
+                          Number(CurrentRemaining) -
+                          Number(Discount) -
+                          Number(Paid) -
+                          Number(Total)}
+                        /-
+                      </div>
                     </div>
                   </div>
                 </div>

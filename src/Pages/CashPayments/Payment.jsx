@@ -8,17 +8,13 @@ import SimpleTextInput from "../../Components/Input/SimpleTextInput";
 import SimpleSelectCompByName from "../../Components/Select/SimpleSelectCompByName";
 import SimpleSelectComp from "../../Components/Select/SimpleSelectComp";
 import { fetchBanks } from "../../store/Slices/BankSlice";
-import {
-  AddNewPayment,
-  UpdateCompanyAccounts,
-  UpdateCustomerAccounts,
-} from "../../Https";
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
 import CompanyDataServices from "../../Services/company.services";
 import CustomerDataServices from "../../Services/customer.services";
 import CashPaymentDataServices from "../../Services/cashpayment.servivces";
 import AddingLoader from "../../Components/Loader/AddingLoader";
+import Select from "react-select";
 
 const Payment = () => {
   const Customers = useSelector((state) => state.CustomerReducer.data);
@@ -64,7 +60,7 @@ const Payment = () => {
     { name: "Easypaisa", _id: "9" },
     { name: "Jazzcash", _id: "10" },
     { name: "Cash", _id: "11" },
-    { name: "Gala", _id: "11" },
+    { name: "Gala", _id: "12" },
   ];
 
   const onSubmit = async (e) => {
@@ -78,12 +74,22 @@ const Payment = () => {
       BankName = BankName.bankname;
     } else if (Type === "customer") {
       BankName = CustomerBankOptions.filter((bnk) => bnk._id === CurrentBank);
-      console.log(BankName);
       BankName = BankName[0];
       BankName = BankName.name;
-      console.log(BankName);
     }
     const timestamp = firebase.firestore.Timestamp.fromDate(new Date(CurDate));
+
+    let curUser = "";
+    if (Type === "company") {
+      curUser = Companies.filter((cust) => cust._id === CompanyId);
+      curUser = curUser[0];
+      curUser = curUser.name;
+    } else if (Type === "customer") {
+      curUser = Customers.filter((cust) => cust._id === CustomerId);
+      curUser = curUser[0];
+      curUser = curUser.name;
+    }
+
     let PaymentInfo = {
       type: Type,
       bank: BankName,
@@ -94,6 +100,7 @@ const Payment = () => {
       cnicno: Cnic,
       contact: Contact,
       user_id: Type === "company" ? CompanyId : CustomerId,
+      user_name: curUser,
     };
     if (
       Type !== "" &&
@@ -146,17 +153,30 @@ const Payment = () => {
             label={"Select Type"}
             data={[{ name: "customer" }, { name: "company" }]}
           />
-          <SimpleSelectComp
-            value={Type === "company" ? CompanyId : CustomerId}
-            setValue={Type === "company" ? setCompanyId : setCustomerId}
-            label={"Select User"}
-            data={
+          <Select
+            options={
               Type === "company"
-                ? Companies
+                ? Companies.map((comp) => {
+                    return {
+                      value: comp._id,
+                      label: comp.name,
+                    };
+                  })
                 : Type === "customer"
-                ? Customers
+                ? Customers.map((cust) => {
+                    return {
+                      value: cust._id,
+                      label: cust.name,
+                    };
+                  })
                 : [{}]
             }
+            onChange={(opt) =>
+              Type === "company"
+                ? setCompanyId(opt.value)
+                : setCustomerId(opt.value)
+            }
+            className="w-[90%] mb-[20px] pb-[0px] z-[10]"
           />
           <SimpleSelectComp
             value={CurrentBank}

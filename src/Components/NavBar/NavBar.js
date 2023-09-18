@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import SideMenu from "./SideMenu";
 import main_logo from "../../assets/images/main_logo.png";
-import Avatar from "./images/Avatar.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars, faMultiply } from "@fortawesome/free-solid-svg-icons";
 import { isactiveMenu } from "../../store/SideMenuSlice";
@@ -9,20 +8,14 @@ import { useDispatch, useSelector } from "react-redux";
 import NavbarStyled from "./Styling/NavbarStyled";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import KeyboardArrowUpIcon from "@mui/icons-material/KeyboardArrowUp";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import EnhancedEncryptionRoundedIcon from "@mui/icons-material/EnhancedEncryptionRounded";
 import LogoutIcon from "@mui/icons-material/Logout";
-import SecurityIcon from "@mui/icons-material/Security";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { logoutUser } from "../../Https";
-import axios from "axios";
 import CPModal from "../Modals/CPModal";
-// import { isOpenModal } from "../../store/CPSlice";
 
 const Navbar = () => {
   const isActive_ = useSelector((state) => state.SideMenuReducer.ActiveState);
-  const Auth = useSelector((state) => state.AuthReducer);
   const dispatch = useDispatch();
   const [isDropActive, setIsDropActive] = useState(false);
   const dropDownRef = useRef();

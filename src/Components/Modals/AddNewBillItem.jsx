@@ -15,7 +15,7 @@ const AddNewBillItem = ({ open, setOpen, setBillDetail, BillDetail }) => {
       name: ItemName,
       qty: ItemQty,
       price: ItemPrice,
-      amount: Amount,
+      amount: Number(Amount).toFixed(2),
     };
     setBillDetail([...BillDetail, curData]);
     setOpen(false);

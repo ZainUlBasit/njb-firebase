@@ -25,6 +25,11 @@ class CustomerTransactionDataServices {
   getAllTransactions = () => {
     return getDocs(customerTransactionCollectionRef);
   };
+
+  deleteTransaction = (id) => {
+    const transactionDoc = doc(db, "customer-transactions", id);
+    return deleteDoc(transactionDoc);
+  };
 }
 
 export default new CustomerTransactionDataServices();

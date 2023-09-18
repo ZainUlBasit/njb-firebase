@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "../../Components/NavBar/NavBar";
 import CustomerNav from "../../Components/Navigations/CustomerNav";
-import SimpleSelectComp from "../../Components/Select/SimpleSelectComp";
-import SimpleSelectCompByName from "../../Components/Select/SimpleSelectCompByName";
 import LedgerButton from "../../Components/Buttons/LedgerButton";
 import ShowInvoiceDetail from "./ShowInvoiceDetail";
 import Select from "react-select";
@@ -18,14 +16,6 @@ const SearchInvoice = () => {
 
   useEffect(() => {
     const BillNo = async () => {
-      let curBillNo = await BillNoDataServices.getBillNumber();
-      curBillNo = curBillNo.docs.map((doc) => ({ ...doc.data(), _id: doc.id }));
-      curBillNo = curBillNo[0];
-      curBillNo = curBillNo.billnumber;
-      for (let i = 1; i < curBillNo; ++i) {
-        if (i == 1) setInvoices([{ label: i, value: i }]);
-        else setInvoices((curVal) => [...curVal, { label: i, value: i }]);
-      }
       let response = await CustomerTransactionDataServices.getAllTransactions();
       response = response.docs.map((doc) => ({ ...doc.data(), _id: doc.id }));
       response = response.map((resp) => {
@@ -35,6 +25,16 @@ const SearchInvoice = () => {
         };
       });
       setTransactions(response);
+      let i = 1;
+      response.map((resp) => {
+        if (i == 1) setInvoices([{ label: resp.bill, value: resp.bill }]);
+        else
+          setInvoices((curVal) => [
+            ...curVal,
+            { label: resp.bill, value: resp.bill },
+          ]);
+        i += 1;
+      });
     };
     BillNo();
   }, []);

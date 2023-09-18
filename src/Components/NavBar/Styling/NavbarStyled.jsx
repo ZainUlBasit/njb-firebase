@@ -29,7 +29,7 @@ const InvisibleKeyframeMob = keyframes`
 
 const NavbarStyled = styled.div`
   position: fixed;
-  z-index: 10;
+  z-index: 30;
   .visible_ {
     display: inline-flex;
     flex-direction: column;

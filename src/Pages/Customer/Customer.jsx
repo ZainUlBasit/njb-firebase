@@ -35,7 +35,7 @@ const Customer = () => {
               if (FilterText === "") {
                 return cu;
               } else {
-                if (cu.name.includes(FilterText)) {
+                if (cu.name.toLowerCase().includes(FilterText.toLowerCase())) {
                   return cu;
                 }
               }

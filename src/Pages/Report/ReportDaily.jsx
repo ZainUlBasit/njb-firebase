@@ -14,6 +14,7 @@ import LedgerButton from "../../Components/Buttons/LedgerButton";
 import CustomerTransactionDataServices from "../../Services/customerTransaction.services";
 import DataLoader from "../../Components/Loader/DataLoader";
 import CashPaymentDataServices from "../../Services/cashpayment.servivces";
+import SaleInfoDaily from "./SaleInfoDaily";
 
 const ReportDaily = () => {
   const [ShowSteel, setShowSteel] = useState(false);
@@ -21,8 +22,10 @@ const ReportDaily = () => {
   const [Ingoing, setIngoing] = useState(false);
   const [Outgoing, setOutgoing] = useState(false);
   const [ShowBody, setShowBody] = useState(false);
+  const [Sale, setSale] = useState(false);
   const toggleSteel = () => {
     if (!ShowSteel) {
+      setSale(false);
       setShowSteel(true);
       setShowCement(false);
       setIngoing(false);
@@ -31,6 +34,7 @@ const ReportDaily = () => {
   };
   const toggleCement = () => {
     if (!ShowCement) {
+      setSale(false);
       setShowSteel(false);
       setShowCement(true);
       setIngoing(false);
@@ -39,6 +43,7 @@ const ReportDaily = () => {
   };
   const toggleIngoing = () => {
     if (!Ingoing) {
+      setSale(false);
       setShowSteel(false);
       setShowCement(false);
       setIngoing(true);
@@ -47,10 +52,20 @@ const ReportDaily = () => {
   };
   const toggleOutgoing = () => {
     if (!Outgoing) {
+      setSale(false);
       setShowSteel(false);
       setShowCement(false);
       setIngoing(false);
       setOutgoing(true);
+    }
+  };
+  const toggleSale = () => {
+    if (!Sale) {
+      setSale(true);
+      setShowSteel(false);
+      setShowCement(false);
+      setIngoing(false);
+      setOutgoing(false);
     }
   };
 
@@ -70,10 +85,12 @@ const ReportDaily = () => {
         new Date(resp.date.seconds * 1000) >= new Date(fromDate) &&
         new Date(resp.date.seconds * 1000) <= new Date(toDate)
     );
+    // console.log(response);
     response = response.map((re) => ({
       ...re,
       date: moment(re.date.seconds * 1000).format("DD/MM/YYYY"),
     }));
+    console.log(response);
     setData(response);
 
     response = await CashPaymentDataServices.getPayments();
@@ -94,8 +111,8 @@ const ReportDaily = () => {
   };
 
   useEffect(() => {
-    if (ShowBody && fromDate !== "" && toDate !== "") GetData();
-  }, [ShowBody, fromDate, toDate]);
+    if (fromDate !== "" && toDate !== "") GetData();
+  }, [fromDate, toDate]);
 
   return (
     <>
@@ -127,11 +144,12 @@ const ReportDaily = () => {
               }}
             />
           ) : (
-            <div>
+            <div className="flex justify-center items-center flex-wrap">
               <LedgerButton title={"Show Steel"} onClick={toggleSteel} />
               <LedgerButton title={"SHOW CEMENT"} onClick={toggleCement} />
               <LedgerButton title={"Ingoing Cash"} onClick={toggleIngoing} />
               <LedgerButton title={"Outgoing Cash"} onClick={toggleOutgoing} />
+              <LedgerButton title={"Sale Info"} onClick={toggleSale} />
             </div>
           )}
         </div>
@@ -146,6 +164,8 @@ const ReportDaily = () => {
         <IngoingDaily data={Transactions} fromdate={fromDate} todate={toDate} />
       ) : Outgoing ? (
         <OutgoingDaily data={Transactions} />
+      ) : Sale ? (
+        <SaleInfoDaily fromdate={fromDate} todate={toDate} />
       ) : (
         <></>
       )}

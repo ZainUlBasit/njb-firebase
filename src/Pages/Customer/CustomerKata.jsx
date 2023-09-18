@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Navbar from "../../Components/NavBar/NavBar";
 import CustomerNav from "../../Components/Navigations/CustomerNav";
 import TableComp from "../../Components/Tables/TableComponent";
@@ -26,6 +26,13 @@ const CustomerKata = () => {
     };
     setData();
   }, []);
+
+  const TotalAdvance = useMemo(() => {
+    return Customers.reduce((total, cust) => Number(cust.advance) + total, 0);
+  }, [Customers]);
+  const TotalArears = useMemo(() => {
+    return Customers.reduce((total, cust) => Number(cust.remaining) + total, 0);
+  }, [Customers]);
   return (
     <>
       <Navbar />
@@ -43,6 +50,26 @@ const CustomerKata = () => {
         >
           <DailyButton title={"Customer Report"} onClick={() => {}} />
         </PDFDownloadLink>
+        <PDFDownloadLink
+          document={
+            <AccountReport
+              Data={Customers.filter((cust) => Number(cust.advance) !== 0)}
+            />
+          }
+          fileName={`Customer Advance Report`}
+        >
+          <DailyButton title={"Advance Report"} onClick={() => {}} />
+        </PDFDownloadLink>
+        <PDFDownloadLink
+          document={
+            <AccountReport
+              Data={Customers.filter((cust) => Number(cust.remaining) !== 0)}
+            />
+          }
+          fileName={`Customer Arears Report`}
+        >
+          <DailyButton title={"Arears Report"} onClick={() => {}} />
+        </PDFDownloadLink>
       </div>
       {Loading ? (
         <DataLoader />
@@ -55,13 +82,17 @@ const CustomerKata = () => {
               if (FilterText === "") {
                 return cu;
               } else {
-                if (cu.name.includes(FilterText)) {
+                if (cu.name.toLowerCase().includes(FilterText.toLowerCase())) {
                   return cu;
                 }
               }
             })}
             columns={CustomerKataColumns}
           />
+          <div className="flex flex-col justify-end items-end text-[1.3rem] font-bold mx-[10px] py-[20px]">
+            <div>{`Total Advance: ${TotalAdvance}/-`}</div>
+            <div>{`Total Arears: ${TotalArears}/-`}</div>
+          </div>
         </>
       )}
     </>

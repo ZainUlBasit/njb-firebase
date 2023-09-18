@@ -4,8 +4,13 @@ import AdminNavButton from "./AdminNavButton";
 import MenuBookIcon from "@mui/icons-material/MenuBook";
 import RequestQuoteIcon from "@mui/icons-material/RequestQuote";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import AddCompany from "../Modals/AddCompany";
 import AddCustomer from "../Modals/AddCustomer";
+import InfoIcon from "@mui/icons-material/Info";
+import AssignmentReturnedIcon from "@mui/icons-material/AssignmentReturned";
+import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
+import AccountBalanceWalletIcon from "@mui/icons-material/AccountBalanceWallet";
+import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
+import ReceiptIcon from "@mui/icons-material/Receipt";
 
 const CustomerNav = () => {
   const [Open, setOpen] = useState(false);
@@ -33,7 +38,7 @@ const CustomerNav = () => {
           title={"Customer Info"}
           type={"link"}
           link={"/customer_info"}
-          BIcon={MenuBookIcon}
+          BIcon={InfoIcon}
           width={"170px"}
         />
         <AdminNavButton
@@ -47,14 +52,14 @@ const CustomerNav = () => {
           title={"Add New Bill"}
           type={"link"}
           link={"/add_new_bill"}
-          BIcon={MenuBookIcon}
+          BIcon={ShoppingCartCheckoutIcon}
           width={"170px"}
         />
         <AdminNavButton
           title={"Item Return"}
           type={"link"}
           link={"/customer_return"}
-          BIcon={MenuBookIcon}
+          BIcon={AssignmentReturnedIcon}
           width={"170px"}
         />
         <AdminNavButton
@@ -68,21 +73,21 @@ const CustomerNav = () => {
           title={"Advance Ledger"}
           type={"link"}
           link={"/advance_ledger"}
-          BIcon={RequestQuoteIcon}
+          BIcon={AccountBalanceWalletIcon}
           width={"170px"}
         />
         <AdminNavButton
           title={"Arears Ledger"}
           type={"link"}
           link={"/arears_ledger"}
-          BIcon={RequestQuoteIcon}
+          BIcon={CompareArrowsIcon}
           width={"170px"}
         />
         <AdminNavButton
           title={"Invoice Search"}
           type={"link"}
           link={"/customer_invoice_search"}
-          BIcon={RequestQuoteIcon}
+          BIcon={ReceiptIcon}
           width={"170px"}
         />
       </div>

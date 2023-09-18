@@ -142,15 +142,6 @@ const styles = StyleSheet.create({
 
 // Create Document Component
 function Testing(props) {
-  useEffect(() => {}, []);
-  // Temp Data
-  const TempData = [
-    { name: "1/2 Steel", qty: 100, price: 150, amount: 15000 },
-    { name: "1/2 Steel", qty: 100, price: 150, amount: 15000 },
-    { name: "1/2 Steel", qty: 100, price: 150, amount: 15000 },
-    { name: "1/2 Steel", qty: 100, price: 150, amount: 15000 },
-    { name: "1/2 Steel", qty: 100, price: 150, amount: 15000 },
-  ];
   return (
     <Document>
       {/*render a single page*/}
@@ -161,6 +152,7 @@ function Testing(props) {
         <View
           style={{
             display: "flex",
+            flexDirection: "row",
             justifyContent: "space-between",
             alignItems: "center",
             width: "100%",
@@ -183,7 +175,7 @@ function Testing(props) {
               fontSize: "10px",
             }}
           >
-            Contact:0311-0312452
+            Email: zainulbasit486@gmail.com
           </Text>
         </View>
         <View
@@ -340,11 +332,12 @@ function Testing(props) {
           </View>
           {/* Right Side */}
           <View>
+            {/* Invoice Number */}
             <View
               style={{
                 display: "flex",
                 flexDirection: "row",
-                width: "130px",
+                width: "190px",
               }}
             >
               <Text
@@ -353,7 +346,7 @@ function Testing(props) {
                   fontFamily: "CustomFont",
                   fontWeight: "bold",
                   fontSize: 13,
-                  width: "70px",
+                  width: "110px",
                 }}
               >
                 Invoice #:
@@ -369,11 +362,12 @@ function Testing(props) {
                 {props.bBillNo}
               </Text>
             </View>
+            {/* Bill Date */}
             <View
               style={{
                 display: "flex",
                 flexDirection: "row",
-                width: "160px",
+                width: "190px",
               }}
             >
               <Text
@@ -382,7 +376,7 @@ function Testing(props) {
                   fontFamily: "CustomFont",
                   fontWeight: "bold",
                   fontSize: 13,
-                  width: "70px",
+                  width: "110px",
                 }}
               >
                 Date:
@@ -396,6 +390,65 @@ function Testing(props) {
                 }}
               >
                 {props.bDate}
+              </Text>
+            </View>
+            {/* Driver Name */}
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                width: "190px",
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "right",
+                  fontFamily: "CustomFont",
+                  fontWeight: "bold",
+                  fontSize: 13,
+                  width: "110px",
+                }}
+              >
+                Driver Name:
+              </Text>
+              <Text
+                style={{
+                  fontFamily: "CustomFont",
+                  fontWeight: "normal",
+                  fontSize: 13,
+                  paddingLeft: 3,
+                }}
+              >
+                {props.DriverName}
+              </Text>
+            </View>
+            <View
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                width: "190px",
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "right",
+                  fontFamily: "CustomFont",
+                  fontWeight: "bold",
+                  fontSize: 13,
+                  width: "110px",
+                }}
+              >
+                Driver Contact:
+              </Text>
+              <Text
+                style={{
+                  fontFamily: "CustomFont",
+                  fontWeight: "normal",
+                  fontSize: 13,
+                  paddingLeft: 3,
+                }}
+              >
+                {props.DriverContact}
               </Text>
             </View>
           </View>
@@ -420,6 +473,7 @@ function Testing(props) {
                 flexDirection: "row",
                 borderBottom: "2px solid #032248",
               }}
+              fixed
             >
               {/* Description */}
               <Text style={styles.header1}>Items</Text>

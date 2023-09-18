@@ -5,6 +5,7 @@ import BankDataServices from "../../Services/bank.services";
 export const fetchBanks = createAsyncThunk("fetchBanks", async () => {
   let data = await BankDataServices.getBankAccounts();
   data = data.docs.map((doc) => ({ ...doc.data(), _id: doc.id }));
+  console.log(data);
   return data;
 });
 

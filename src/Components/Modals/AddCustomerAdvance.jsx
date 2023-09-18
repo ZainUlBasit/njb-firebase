@@ -9,11 +9,17 @@ import { useDispatch, useSelector } from "react-redux";
 import SimpleSelectComp from "../Select/SimpleSelectComp";
 import CustomerDataServices from "../../Services/customer.services";
 import AddingLoader from "../Loader/AddingLoader";
+import moment from "moment";
+import firebase from "firebase/compat/app";
+import "firebase/compat/firestore";
 
 const AddCustomerAdvance = ({ open, setOpen }) => {
   const [ID, setID] = useState("");
   const [Advance, setAdvance] = useState("");
   const [Desc, setDesc] = useState("");
+  const [CurDate, setCurDate] = useState(
+    moment(new Date()).format("YYYY-MM-DD")
+  );
   const [ProcessLoading, setProcessLoading] = useState(false);
   const Customers = useSelector((state) => state.CustomerReducer.data);
   const dispatch = useDispatch();
@@ -22,11 +28,16 @@ const AddCustomerAdvance = ({ open, setOpen }) => {
     e.preventDefault();
     if (ID !== "" && Advance !== "") {
       try {
+        const timestamp = firebase.firestore.Timestamp.fromDate(
+          new Date(CurDate)
+        );
+
         await CustomerDataServices.updateCustomerAdvance(ID, Advance);
         await CustomerDataServices.addAdvanceLedger({
           customerid: ID,
           advance: Advance,
           desc: Desc,
+          date: timestamp,
         });
         alert("Customer Advance successfully added..!");
         setOpen(false);
@@ -69,6 +80,13 @@ const AddCustomerAdvance = ({ open, setOpen }) => {
           name="desc"
           value={Desc}
           setValue={setDesc}
+        />
+        <SimpleTextInput
+          type="date"
+          id="date"
+          name="date"
+          value={CurDate}
+          setValue={setCurDate}
         />
         <ModalBottomLine />
       </form>
